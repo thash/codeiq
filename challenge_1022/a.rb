@@ -21,21 +21,23 @@ end
 # #=> [["N", "N", "N"], ["N", "N", "N"], ["N", "N", "N"]]
 
 
-def all_possible_matrixes(input, size)
+def find_matrix(input, size, result)
   datasize = input.lines.length
-  matrixes = []
   0.upto(datasize - size) do |top|
     testline = input.lines[top].chomp
-    w_subst = testline.scan(/W{#{size}}/)
-    n_subst = testline.scan(/N{#{size}}/)
+    w_subst = result[:W] ? [] : testline.scan(/W{#{size}}/)
+    n_subst = result[:N] ? [] : testline.scan(/N{#{size}}/)
     next if w_subst.length.zero? && n_subst.length.zero?
     0.upto(datasize - size) do |left|
       testcol = input.lines[top..(top+size-1)].map{|line| line.chomp.chars[left] }.join
       next if testcol != 'W'*size && testcol != 'N'*size
-      matrixes << mat(input, [left, top], [left + size - 1, top + size - 1])
+      beta = mat(input, [left, top], [left + size - 1, top + size - 1]).flatten.join
+      w_bool = beta == 'W'*size*size
+      n_bool = beta == 'N'*size*size
+      return [w_bool, n_bool] if w_bool || n_bool
     end
   end
-  matrixes
+  [false, false]
 end
 
 def t(time)
@@ -45,12 +47,10 @@ end
 result = {W: nil, N: nil}
 
 (input.lines.length).downto(1) do |size|
-  mxs = all_possible_matrixes(input, size)
-  puts "[#{t(Time.now)}] for size #{size}, there're #{mxs.size} matrixes -- #{result}"
-  mxs.each do |matrix|
-    result[:W] = size if result[:W].nil? && matrix.flatten.all?{|x| x == 'W' }
-    result[:N] = size if result[:N].nil? && matrix.flatten.all?{|x| x == 'N' }
-  end
+  puts "[#{t(Time.now)}] for size #{size} -- #{result}"
+  res = find_matrix(input, size, result)
+  result[:W] = size if result[:W].nil? && res[0]
+  result[:N] = size if result[:N].nil? && res[1]
   break if result[:W] && result[:N]
 end
 
