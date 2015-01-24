@@ -21,11 +21,13 @@ end
 # #=> [["N", "N", "N"], ["N", "N", "N"], ["N", "N", "N"]]
 
 
-def all_matrixes(input, size)
+def all_possible_matrixes(input, size)
   datasize = input.lines.length
   matrixes = []
   0.upto(datasize - size) do |left|
     0.upto(datasize - size) do |top|
+      testline = input.lines[top].chomp[left..(left + size - 1)]
+      next unless testline.chars.all?{|c| c == 'W' } || testline.chars.all?{|c| c == 'N' }
       matrixes << mat(input, [left, top], [left + size - 1, top + size - 1])
     end
   end
@@ -39,7 +41,7 @@ end
 result = {W: nil, N: nil}
 
 (input.lines.length).downto(1) do |size|
-  mxs = all_matrixes(input, size)
+  mxs = all_possible_matrixes(input, size)
   puts "[#{t(Time.now)}] for size #{size}, there're #{mxs.size} matrixes -- #{result}"
   mxs.each do |matrix|
     result[:W] = size if result[:W].nil? && matrix.flatten.all?{|x| x == 'W' }
