@@ -24,10 +24,14 @@ end
 def all_possible_matrixes(input, size)
   datasize = input.lines.length
   matrixes = []
-  0.upto(datasize - size) do |left|
-    0.upto(datasize - size) do |top|
-      testline = input.lines[top].chomp[left..(left + size - 1)]
-      next unless testline.chars.all?{|c| c == 'W' } || testline.chars.all?{|c| c == 'N' }
+  0.upto(datasize - size) do |top|
+    testline = input.lines[top].chomp
+    w_subst = testline.scan(/W{#{size}}/)
+    n_subst = testline.scan(/N{#{size}}/)
+    next if w_subst.length.zero? && n_subst.length.zero?
+    0.upto(datasize - size) do |left|
+      testcol = input.lines[top..(top+size-1)].map{|line| line.chomp.chars[left] }.join
+      next if testcol != 'W'*size && testcol != 'N'*size
       matrixes << mat(input, [left, top], [left + size - 1, top + size - 1])
     end
   end
